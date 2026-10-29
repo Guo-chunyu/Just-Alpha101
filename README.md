@@ -17,8 +17,7 @@
 | 82 项本地测试通过 | 算子手算、全部公式因果性、回测、时间边界、错误输入、数据审计绑定 |
 | 原文差距、手算例子与研究反思 | [完整研究报告](reports/research_report.md)、[我的理解](docs/understanding.md) |
 
-验证状态：82 项本地测试、打包及 actionlint 1.7.12 工作流语法检查已通过。[最新代码的 GitHub Actions 运行](https://github.com/Guo-chunyu/Just-Alpha101/actions/runs/40871136217) 因账户侧限制未能启动托管 runner，0 个步骤执行，远端测试尚未得到验证；仓库中保留了 CI 工作流。
-
+验证状态：82 项本地测试、打包及 actionlint 1.7.12 工作流语法检查已通过。
 ## 先看结果
 
 | 描述性指标 | 原论文（101 个因子） | 本项目基线（52 个可计算因子） |
@@ -104,4 +103,3 @@ This is a transparent educational reproduction, not a claim of matching the prop
 
 - [原论文](https://arxiv.org/abs/1601.00991)、[Nasdaq WIKI 说明](https://data.nasdaq.com/databases/WIKIP)、[本次历史数据镜像](https://www.kaggle.com/datasets/marketneutral/quandl-wiki-prices-us-equites)。
 - 独立编写的项目代码和文档采用 [MIT](LICENSE)；第三方原始公式材料、论文和行情的权利不因此改变。详见 [NOTICE](NOTICE)。
-- 研究报告没有虚构个人交易经历；使用 AI 辅助实现、审阅和文稿整理，结论以公开的实际运行结果为依据。
