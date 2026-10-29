@@ -6,7 +6,6 @@ import hashlib
 import json
 from pathlib import Path
 import platform
-import subprocess
 import sys
 import time
 
@@ -15,7 +14,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
-from just_alpha101.data import make_panel, sessions
+from just_alpha101.data import make_panel, sessions, load_audited_data
 from just_alpha101.engine import FormulaEngine, MissingFieldError
 from just_alpha101.formulas import FORMULAS, DELAY_ZERO
 from just_alpha101.backtest import run_backtest
@@ -38,11 +37,24 @@ def write_json(path, value):
     path.write_text(json.dumps(clean_json(value), indent=2, ensure_ascii=False, allow_nan=False), encoding='utf-8')
 
 
-def run(config, selected_ids=None, grid=True, *, data_path=None, output_dir=None, overwrite=False):
+def run(config, selected_ids=None, grid=True, *, data_path=None, output_dir=None, overwrite=False,
+        provenance_path=None, require_strict_data=False):
     started = time.monotonic()
     costs = config['cost_bps']
     if not costs or any(not np.isfinite(value) or value < 0 for value in costs):
         raise ValueError('cost_bps must contain finite nonnegative values')
+    using_default_input = data_path is None
+    data_path = Path(data_path) if data_path is not None else ROOT / 'data/processed/wiki_diagnostic.parquet'
+    default_evidence = ROOT / 'reports/data_audit.json'
+    if provenance_path is None and using_default_input and default_evidence.exists():
+        provenance_path = default_evidence
+    data, input_audit = load_audited_data(data_path, provenance_path,
+                                         start=config['evaluation_start'], end=config['evaluation_end'])
+    if require_strict_data and not input_audit['strict_data_ready']:
+        failed = [key for key, value in input_audit['checks'].items() if not value['passed']]
+        raise ValueError(f'Strict data requirements failed: {", ".join(failed)}')
+    # Validate and audit before replacing any existing results.
+    panel = make_panel(data, sessions(config['input_start'], config['input_end']))
     folder = Path(output_dir) if output_dir is not None else ROOT / 'reports'
     folder.mkdir(parents=True, exist_ok=True)
     generated = [folder / name for name in ('metrics.csv', 'factor_coverage.csv', 'paper_comparison.json',
@@ -56,10 +68,7 @@ def run(config, selected_ids=None, grid=True, *, data_path=None, output_dir=None
         if path.resolve().parent != folder.resolve():
             raise ValueError('Generated output resolves outside the output directory')
         path.unlink()
-    data_path = Path(data_path) if data_path is not None else ROOT / 'data/processed/wiki_diagnostic.parquet'
-    data = pd.read_parquet(data_path) if data_path.suffix == '.parquet' else pd.read_csv(data_path, parse_dates=['date'])
-    data['date'] = pd.to_datetime(data['date'], errors='raise')
-    panel = make_panel(data, sessions(config['input_start'], config['input_end']))
+    write_json(folder / 'data_audit.json', input_audit)
     engine_fields = {key: panel[key] for key in ('open', 'high', 'low', 'close', 'volume', 'dollar_volume',
                                                'vwap', 'cap', 'sector', 'industry', 'subindustry') if key in panel}
     lag = config['execution_lag']
@@ -150,6 +159,9 @@ def run(config, selected_ids=None, grid=True, *, data_path=None, output_dir=None
         'config_sha256': hashlib.sha256(config_bytes).hexdigest(), 'code_sha256': code_hash.hexdigest(),
         'config': config, 'data_audit_file': 'data_audit.json', 'selected_ids': ids,
         'input_file': data_path.name,
+        'input_sha256': input_audit['input_sha256'],
+        'strict_data_ready': input_audit['strict_data_ready'],
+        'strict_data_required': bool(require_strict_data),
         'mode': 'full_predeclared_grid' if grid else 'baseline_only',
         'strict_paper_reproduction': False,
         'scope': 'Available-input factors only. No substitute VWAP, cap or industry.',
@@ -169,7 +181,10 @@ if __name__ == '__main__':
     parser.add_argument('--data', type=Path, help='Standard long-table CSV/Parquet with optional true VWAP/cap/industry fields')
     parser.add_argument('--output', type=Path, help='Separate directory for custom data or debug runs')
     parser.add_argument('--overwrite', action='store_true', help='Replace only known experiment output files')
+    parser.add_argument('--provenance', type=Path, help='Source metadata for this input, with processed_sha256')
+    parser.add_argument('--require-strict-data', action='store_true', help='Refuse to run if the input data audit fails')
     args = parser.parse_args()
     config = json.loads(args.config.read_text(encoding='utf-8'))
     run(config, [int(x) for x in args.alphas.split(',')] if args.alphas else None,
-        not args.baseline_only, data_path=args.data, output_dir=args.output, overwrite=args.overwrite)
+        not args.baseline_only, data_path=args.data, output_dir=args.output, overwrite=args.overwrite,
+        provenance_path=args.provenance, require_strict_data=args.require_strict_data)

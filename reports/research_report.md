@@ -24,6 +24,7 @@
 | membership_and_delistings | 未通过 | No complete delisting coverage is inferred merely from a large symbol count |
 | point_in_time_adjustments | 未通过 | Retrospectively adjusted data are not proof of as-known-on-date input values |
 | warmup | 通过 | Last 500 XNYS sessions immediately before evaluation required per symbol; minimum observed 500; each factor also enforces full rolling windows |
+| provenance_file_binding | 通过 | The source metadata processed_sha256 must identify this exact input; claims still need source verification |
 
 存档 SHA-256：`adfd226694c6f3ec2c56b585d973764180a39a3ec516601721e90096dc1de94f`。原始行情和处理后行情留在本地，仓库仅保留来源、哈希及派生实验结果。镜像并不是数据提供商的审计认证。
 
@@ -121,4 +122,4 @@
 - [Kakushadze, 101 Formulaic Alphas, v3](https://arxiv.org/pdf/1601.00991)，数学表达式、样本期与表 1—5。
 - [Nasdaq WIKI 数据说明](https://data.nasdaq.com/databases/WIKIP)、[本次使用的历史镜像](https://www.kaggle.com/datasets/marketneutral/quandl-wiki-prices-us-equites)。
 
-本报告由实际运行输出生成。执行耗时约 273 秒；性能依机器而异。作者视角是学习与复核，不虚构个人交易经历。
+本报告由实际运行输出生成。执行耗时约 245 秒；性能依机器而异。作者视角是学习与复核，不虚构个人交易经历。

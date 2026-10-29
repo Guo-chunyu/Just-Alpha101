@@ -46,6 +46,10 @@
     "warmup": {
       "passed": true,
       "detail": "Last 500 XNYS sessions immediately before evaluation required per symbol; minimum observed 500; each factor also enforces full rolling windows"
+    },
+    "provenance_file_binding": {
+      "passed": true,
+      "detail": "The source metadata processed_sha256 must identify this exact input; claims still need source verification"
     }
   },
   "provenance": {
@@ -1081,5 +1085,7 @@
     "expected_full_panel_sessions": 1764,
     "data_redistribution": "Raw and processed market data are excluded from this repository",
     "license_note": "Original WIKI was described by Nasdaq as public-domain; Kaggle mirror metadata says Unknown. No independent warranty of mirror provenance or license; no raw data redistributed."
-  }
+  },
+  "input_file": "wiki_diagnostic.parquet",
+  "input_sha256": "a760d7a08e2b2e6d145f9f735454bd90b4b4fbee408f3247c94113612145a223"
 }

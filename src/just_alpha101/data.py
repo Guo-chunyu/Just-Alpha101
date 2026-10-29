@@ -1,6 +1,10 @@
 """Validated daily bars and explicit evidence checks; no missing-field imputation."""
 from __future__ import annotations
 
+import hashlib
+import json
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import exchange_calendars as xcals
@@ -118,3 +122,36 @@ def audit_data(frame: pd.DataFrame, provenance: dict, *, start='2010-01-04', end
             'rows': len(frame), 'symbols': int(frame.symbol.nunique()),
             'start': str(frame.date.min().date()), 'end': str(frame.date.max().date()),
             'checks': checks, 'provenance': provenance}
+
+
+def load_audited_data(path, provenance_path=None, *, start='2010-01-04', end='2013-12-31'):
+    """Read one input and bind its audit to the exact bytes used in the experiment.
+
+    A matching checksum establishes file identity, not truth of vendor claims.
+    A custom input never inherits another dataset's evidence implicitly.
+    """
+    path = Path(path)
+    with path.open('rb') as stream:
+        checksum = hashlib.file_digest(stream, 'sha256').hexdigest()
+    metadata = {}
+    if provenance_path is not None:
+        metadata = json.loads(Path(provenance_path).read_text(encoding='utf-8'))
+        if not isinstance(metadata, dict):
+            raise ValueError('Data provenance must be a JSON object')
+        metadata = metadata.get('provenance', metadata)
+        if not isinstance(metadata, dict):
+            raise ValueError('Data provenance must be a JSON object')
+    expected = metadata.get('processed_sha256')
+    if expected is not None and expected != checksum:
+        raise ValueError('Data provenance hash does not match the input file')
+    data = pd.read_parquet(path) if path.suffix.lower() == '.parquet' else pd.read_csv(path)
+    data['date'] = pd.to_datetime(data['date'], errors='raise')
+    audit = audit_data(data, metadata, start=start, end=end)
+    audit['input_file'] = path.name
+    audit['input_sha256'] = checksum
+    audit['checks']['provenance_file_binding'] = {
+        'passed': expected == checksum,
+        'detail': 'The source metadata processed_sha256 must identify this exact input; claims still need source verification',
+    }
+    audit['strict_data_ready'] = audit['strict_data_ready'] and expected == checksum
+    return data, audit

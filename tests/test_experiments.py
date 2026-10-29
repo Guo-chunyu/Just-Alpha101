@@ -1,6 +1,7 @@
 """Runner integration: real bars, formulas, backtests, reports and period splits."""
 
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 
@@ -115,3 +116,69 @@ def test_existing_results_require_explicit_overwrite_and_do_not_survive_missing_
     assert not (root / 'reports' / 'daily_dollar_w1.csv.gz').exists()
     coverage = pd.read_csv(root / 'reports' / 'factor_coverage.csv')
     assert coverage.status.tolist() == ['missing_fields']
+
+
+def test_strict_data_gate_rejects_incomplete_inputs_before_replacing_results(experiment):
+    module, config, root = experiment
+    folder = root / 'reports'
+    folder.mkdir()
+    saved = folder / 'metrics.csv'
+    saved.write_text('previous verified results', encoding='utf-8')
+    with pytest.raises(ValueError, match='Strict data requirements failed'):
+        module.run(config, selected_ids=[101], grid=False, overwrite=True, require_strict_data=True)
+    assert saved.read_text(encoding='utf-8') == 'previous verified results'
+
+
+def test_custom_input_records_its_own_hash_and_audit_not_an_unrelated_default(experiment):
+    module, config, root = experiment
+    source = root / 'data' / 'processed' / 'wiki_diagnostic.parquet'
+    output = root / 'reports' / 'custom'
+    module.run(config, selected_ids=[101], grid=False, data_path=source, output_dir=output)
+    manifest = json.loads((output / 'run_manifest.json').read_text(encoding='utf-8'))
+    audit = json.loads((output / 'data_audit.json').read_text(encoding='utf-8'))
+    assert manifest['input_sha256'] == hashlib.sha256(source.read_bytes()).hexdigest()
+    assert manifest['strict_data_ready'] is False
+    assert audit['strict_data_ready'] is False
+    assert audit['rows'] == len(pd.read_parquet(source))
+
+
+def test_provenance_for_different_file_is_rejected_without_destroying_outputs(experiment):
+    module, config, root = experiment
+    metadata = root / 'wrong_source.json'
+    metadata.write_text(json.dumps({'processed_sha256': '0' * 64}), encoding='utf-8')
+    output = root / 'reports'
+    output.mkdir()
+    saved = output / 'metrics.csv'
+    saved.write_text('keep', encoding='utf-8')
+    with pytest.raises(ValueError, match='provenance.*hash'):
+        module.run(config, selected_ids=[101], grid=False, overwrite=True, provenance_path=metadata)
+    assert saved.read_text(encoding='utf-8') == 'keep'
+
+
+def test_strict_gate_can_accept_a_complete_bound_fixture_without_claiming_paper_replication(experiment):
+    module, config, root = experiment
+    source = root / 'data' / 'processed' / 'wiki_diagnostic.parquet'
+    data = pd.read_parquet(source)
+    history = sessions('2010-01-01', '2012-12-26')[-500:]
+    first = data.groupby('symbol').head(1).copy()
+    copies = [first.assign(date=date) for date in history]
+    data = pd.concat([*copies, data[data.date >= config['evaluation_start']]], ignore_index=True)
+    data['vwap'] = data.close
+    data['cap'] = 1_000_000.0
+    for group in ('sector', 'industry', 'subindustry'):
+        data[group] = 'synthetic-test-group'
+    data.to_parquet(source, index=False)
+    config['input_start'] = str(history[0].date())
+    metadata = root / 'fixture_evidence.json'
+    metadata.write_text(json.dumps(dict(
+        source='Synthetic test only: no empirical evidence',
+        processed_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
+        vwap_is_trade_weighted=True, dollar_volume_is_actual=True,
+        cap_is_point_in_time=True, industry_is_point_in_time=True,
+        corporate_actions_documented=True, adjustments_point_in_time=True,
+        membership_and_delistings_verified=True)), encoding='utf-8')
+    module.run(config, selected_ids=[101], grid=False, provenance_path=metadata, require_strict_data=True)
+    manifest = json.loads((root / 'reports' / 'run_manifest.json').read_text(encoding='utf-8'))
+    assert manifest['strict_data_ready'] is True
+    assert manifest['strict_data_required'] is True
+    assert manifest['strict_paper_reproduction'] is False

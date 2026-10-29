@@ -1,11 +1,11 @@
 {
-  "completed_at_utc": "2026-10-29T07:36:25.154713+00:00",
-  "elapsed_seconds": 272.61305749999883,
+  "completed_at_utc": "2026-10-29T12:08:57.767381+00:00",
+  "elapsed_seconds": 244.5905122999975,
   "python": "3.13.1",
   "numpy": "2.2.6",
   "pandas": "2.3.3",
   "config_sha256": "40eda492683229e107fba7cd5dd6c51a7b65bfd0b07618d03129fb67add361e4",
-  "code_sha256": "21c6f2c811d1575c7d2ff4542f562aa93982cfae75346fef0251b99786e03187",
+  "code_sha256": "4c2be11095c32f371c13e53315b95362b429ee2f3dd277d7a61a83d2877594a3",
   "config": {
     "title": "Just Alpha101",
     "source": "quandl_wiki_kaggle_archive",
@@ -145,6 +145,9 @@
     101
   ],
   "input_file": "wiki_diagnostic.parquet",
+  "input_sha256": "a760d7a08e2b2e6d145f9f735454bd90b4b4fbee408f3247c94113612145a223",
+  "strict_data_ready": false,
+  "strict_data_required": false,
   "mode": "full_predeclared_grid",
   "strict_paper_reproduction": false,
   "scope": "Available-input factors only. No substitute VWAP, cap or industry.",

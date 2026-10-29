@@ -23,7 +23,7 @@
 
 ## 审计用元数据
 
-`--provenance` 接受 JSON。键包括 `source`、`source_page`、`archive_sha256`、`adjustment` 及以下证据声明：
+`--provenance` 接受 JSON。键包括 `source`、`source_page`、`archive_sha256`、`adjustment`、`processed_sha256` 及以下证据声明。`processed_sha256` 必须是本次导入 CSV/Parquet 文件的 SHA-256；不匹配时停止，不会替换已有结果。哈希只能证明文件身份，不能替代来源真实性审核。
 
 ```json
 {
@@ -43,10 +43,12 @@
 
 ```powershell
 python scripts/audit_data.py --data your_panel.parquet --provenance source.json --output reports/custom_audit.json --strict
-python scripts/run_experiments.py --data your_panel.parquet --config configs/experiment.json --output reports/custom_run
+python scripts/run_experiments.py --data your_panel.parquet --provenance source.json --require-strict-data --config configs/experiment.json --output reports/custom_run
 ```
 
-严格审计未通过时退出码为 2。默认存档诊断样本应返回此码，这是如实拒绝认证的预期行为。自有数据需要同步调整配置中的时间、样本描述和预热区间。运行目录若已有实验结果会拒绝覆盖；确实要替换时使用 `--overwrite`，只替换已知实验输出，保留数据审计及其他文件。
+独立审计命令未通过时退出码为 2；实验命令带 `--require-strict-data` 时也会在不合格输入上停止。默认存档诊断样本不能通过严格验收。自有数据需要同步调整配置中的时间、样本描述和预热区间。每次实验会重新生成本次输入的审计，记录输入文件哈希；自定义输入不会沿用 WIKI 的来源说明。运行目录若已有实验结果会拒绝覆盖；确实要替换时使用 `--overwrite`，只替换已知实验输出，保留其他文件。数据校验和严格检查在替换结果之前执行。
+
+没有授权数据库时，继续使用当前明确差距的公开研究版本。未来有数据条件时可参考[字段与授权来源核查](data_access_options.md)，该文档不代表已获得订阅或数据。
 
 ## 结果读取
 

@@ -1,5 +1,5 @@
 {
-  "tests": 78,
+  "tests": 82,
   "failures": 0,
   "errors": 0,
   "code_and_config_hashes_verified": true,
@@ -9,7 +9,7 @@
   "figures_visually_reviewed": 4,
   "strict_data_ready": false,
   "wheel_build": "just_alpha101-0.1.0-py3-none-any.whl",
-  "checked_at_utc": "2026-10-29T07:42:32.109641+00:00",
+  "checked_at_utc": "2026-10-29T12:09:37.145085+00:00",
   "github_actions_initial_run": {
     "run_id": 40838011659,
     "conclusion": "startup_failure",
@@ -17,5 +17,8 @@
     "tested_commit": "336b8bd7623e5423cdd67a8f30fccb1c131042ee",
     "url": "https://github.com/Guo-chunyu/Just-Alpha101/actions/runs/40838011659",
     "remote_tests_verified": false
-  }
+  },
+  "input_hash_bound_to_audit": true,
+  "results_unchanged_after_audit_binding": true,
+  "workflow_static_validation": "actionlint 1.7.12: exit 0"
 }
