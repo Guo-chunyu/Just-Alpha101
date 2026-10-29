@@ -20,5 +20,17 @@
   },
   "input_hash_bound_to_audit": true,
   "results_unchanged_after_audit_binding": true,
-  "workflow_static_validation": "actionlint 1.7.12: exit 0"
+  "workflow_static_validation": "actionlint 1.7.12: exit 0",
+  "strict_runner_rejection_preserves_outputs": true,
+  "github_actions_latest_code_run": {
+    "run_id": 40871136217,
+    "job_id": 123438179543,
+    "conclusion": "failure",
+    "tested_commit": "80049b2302e9e3d91f9040610475ba67eb775797",
+    "steps_executed": 0,
+    "runner_started": false,
+    "reason": "account_level_runner_restriction",
+    "url": "https://github.com/Guo-chunyu/Just-Alpha101/actions/runs/40871136217",
+    "remote_tests_verified": false
+  }
 }

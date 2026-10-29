@@ -17,7 +17,7 @@
 | 82 项本地测试通过 | 算子手算、全部公式因果性、回测、时间边界、错误输入、数据审计绑定 |
 | 原文差距、手算例子与研究反思 | [完整研究报告](reports/research_report.md)、[我的理解](docs/understanding.md) |
 
-验证状态：本地测试和打包已通过。首次 [GitHub Actions 运行](https://github.com/Guo-chunyu/Just-Alpha101/actions/runs/40838011659) 返回 `startup_failure`、没有创建测试任务，远端测试尚未得到验证；仓库中保留了 CI 工作流。
+验证状态：82 项本地测试、打包及 actionlint 1.7.12 工作流语法检查已通过。[最新代码的 GitHub Actions 运行](https://github.com/Guo-chunyu/Just-Alpha101/actions/runs/40871136217) 因账户侧限制未能启动托管 runner，0 个步骤执行，远端测试尚未得到验证；仓库中保留了 CI 工作流。
 
 ## 先看结果
 
