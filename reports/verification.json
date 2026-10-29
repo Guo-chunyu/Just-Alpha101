@@ -1,0 +1,13 @@
+{
+  "tests": 78,
+  "failures": 0,
+  "errors": 0,
+  "code_and_config_hashes_verified": true,
+  "full_period_observations": 1006,
+  "metric_rows": 2808,
+  "factor_coverage_rows": 606,
+  "figures_visually_reviewed": 4,
+  "strict_data_ready": false,
+  "wheel_build": "just_alpha101-0.1.0-py3-none-any.whl",
+  "checked_at_utc": "2026-10-29T07:42:32.109641+00:00"
+}

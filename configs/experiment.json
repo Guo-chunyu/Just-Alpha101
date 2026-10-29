@@ -1,0 +1,23 @@
+{
+  "title": "Just Alpha101",
+  "source": "quandl_wiki_kaggle_archive",
+  "download_url": "https://www.kaggle.com/api/v1/datasets/download/marketneutral/quandl-wiki-prices-us-equites",
+  "source_page": "https://www.kaggle.com/datasets/marketneutral/quandl-wiki-prices-us-equites",
+  "input_start": "2007-01-01",
+  "input_end": "2014-01-03",
+  "selection_start": "2009-01-01",
+  "selection_end": "2009-12-31",
+  "max_symbols": 500,
+  "min_selection_observations": 200,
+  "evaluation_start": "2010-01-04",
+  "evaluation_end": "2013-12-31",
+  "development_end": "2012-12-31",
+  "holdout_start": "2013-01-02",
+  "window_scales": [0.8, 1.0, 1.2],
+  "adv_bases": ["dollar", "shares"],
+  "cost_bps": [0, 5, 10],
+  "execution_lag": 1,
+  "minimum_assets": 20,
+  "universe_method": "Top 500 by 2009 mean raw close times volume among symbols with at least 200 observations; then complete-OHLCV diagnostic cohort. Any continuity exclusions are disclosed as ex-post survivorship bias, never a point-in-time universe.",
+  "selection_policy": "No winner selected using 2013 returns. All predeclared candidates are reported."
+}

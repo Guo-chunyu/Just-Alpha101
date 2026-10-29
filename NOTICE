@@ -1,0 +1,14 @@
+Just Alpha101 is an independent educational research implementation.
+
+Mathematical source: Zura Kakushadze, "101 Formulaic Alphas", arXiv:1601.00991v3,
+https://arxiv.org/abs/1601.00991 . The paper states that WorldQuant LLC retains
+rights in its original formulas/code. This repository does not redistribute the
+paper PDF or claim ownership of WorldQuant's original materials. The project
+license covers the independently written implementation, tests and documents;
+it does not grant rights in third-party materials or market data.
+
+Historical data: Nasdaq/Quandl WIKI, accessed through the third-party Kaggle
+archive marketneutral/quandl-wiki-prices-us-equites. Source provenance, caveats,
+hashes and exclusions are recorded in reports/data_audit.json. Raw and processed
+market data are excluded from Git. No affiliation with or endorsement by
+WorldQuant, Nasdaq, Kaggle or the paper's author is implied.
